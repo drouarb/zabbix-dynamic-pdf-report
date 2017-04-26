@@ -20,6 +20,7 @@ if (isset($_GET['debug']))	 { $debug	= true; }
 else				 { $debug	= false; }
 if (isset($_GET['HostID']))	 { $hostid	= filter_input(INPUT_GET,'HostID', FILTER_SANITIZE_STRING); }
 if (isset($_GET['GroupID']))	 { $groupid	= filter_input(INPUT_GET,'GroupID', FILTER_SANITIZE_STRING); }
+if (isset($_GET['ScreenID']))   { $screenid	= filter_input(INPUT_GET,'ScreenID', FILTER_SANITIZE_STRING); }
 if (isset($_GET['ReportType']))  { $reporttype	= filter_input(INPUT_GET,'ReportType', FILTER_SANITIZE_STRING); }
 if (isset($_GET['ReportRange'])) {
 	if ($_GET['ReportRange'] == "last") {
@@ -132,6 +133,13 @@ elseif ($reporttype == 'hostgroup') {
 	$name = $hostgroupname[0]['name'];
 	$reportname=str_replace(" ", "_",$name);
 	CreatePDF($hosts);
+}
+elseif ($reporttype == 'screen') {
+	if (!is_numeric($screenid)) { echo "ERROR: Need screenid for group report!</br>\n"; exit; }
+	$screen = ZabbixAPI::fetch_array('screen', 'get', array('output'=>array('screenid', 'name'), 'screenids'=>$screenid));
+	$name = $screen[0]['name'];
+	$reportname=str_replace(" ", "_",$name);
+	CreateScreenPDF($screenid);
 }
 else {
 	echo "Report type not selected!\n";
@@ -278,7 +286,7 @@ foreach ($data as $key => $line){
           } else {
             // then we have moved onto a new page, bad bad, as the background colour will be on the old one
             $pdf->transaction('rewind');
-           #$pdf->ezNewPage();
+            $pdf->ezNewPage();
           }
         }
         break;
@@ -292,7 +300,6 @@ foreach ($data as $key => $line){
     // the ezpdf function will take care of all of the wrapping etc.
     $pdf->ezText($line,$size,$textOptions);
   }
-  
 }
 
 $pdf->ezStopPageNumbers(1,1);

@@ -9,14 +9,15 @@ function ReadArray($array) {
 		elseif (isset($array[$key]['groupid'])) {
 			$id   = $array[$key]['groupid'];
 		}
+		elseif (isset($array[$key]['screenid'])) {
+			$id   = $array[$key]['screenid'];
+		}
 		else {
 			$id   = $name;
 		}
 		echo "<option value=\"$id\">$name</option>\n";
 	}
 }
-
-
 
 function listdir_by_date($path){
     $dir = opendir($path);

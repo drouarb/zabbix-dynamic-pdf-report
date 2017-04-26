@@ -46,18 +46,35 @@ header( 'Content-type: text/html; charset=utf-8' );
 			$('#ReportHost').click(function(){
 				$('#s_ReportHost').prop('disabled',false);
 				$('#s_ReportHostGroup').prop('disabled',true);
+				$('#s_ReportScreen').prop('disabled',true);
 				$('#s_ReportHost').prop('required',true);
 				$('#s_ReportHostGroup').prop('required',false);
+				$('#s_ReportScreen').prop('required',false);
 				$('#p_ReportHostGroup').hide('fast');
+				$('#p_ReportScreen').hide('fast');
 				$('#p_ReportHost').show('slow');
 			});
 			$('#ReportHostGroup').click(function(){
 				$('#s_ReportHostGroup').prop('disabled',false);
 				$('#s_ReportHost').prop('disabled',true);
+				$('#s_ReportScreen').prop('disabled',true);
 				$('#s_ReportHostGroup').prop('required',true);
 				$('#s_ReportHost').prop('required',false);
+				$('#s_ReportScreen').prop('required',false);
 				$('#p_ReportHost').hide('fast');
+				$('#p_ReportScreen').hide('fast');
 				$('#p_ReportHostGroup').show('slow');
+			});
+			$('#ReportScreen').click(function(){
+				$('#s_ReportScreen').prop('disabled',false);
+				$('#s_ReportHost').prop('disabled',true);
+				$('#s_ReportHostGroup').prop('disabled',true);
+				$('#s_ReportScreen').prop('required',true);
+				$('#s_ReportHost').prop('required',false);
+				$('#s_ReportHostGroup').prop('required',false);
+				$('#p_ReportHost').hide('fast');
+				$('#p_ReportHostGroup').hide('fast');
+				$('#p_ReportScreen').show('slow');
 			});
 			$('#RangeLast').click(function(){
 				$('#s_RangeLast').prop('disabled',false);
@@ -92,10 +109,12 @@ header( 'Content-type: text/html; charset=utf-8' );
 			$('#datepicker_end').prop('disabled',true);
 			$('#timepicker_end').prop('disabled',true);
 			$('#p_ReportHostGroup').hide('fast');
+			$('#p_ReportScreen').hide('fast');
 			$('#p_RangeCustom').hide('fast');
 			$('#OldReports').tablesorter();
 			$("#s_ReportHost").select2({width: "copy"});
 			$("#s_ReportHostGroup").select2({width: "copy"});
+			$("#s_ReportScreen").select2({width: "copy"});
 			$("#s_RangeLast").select2();
 		});
 		</script>
@@ -120,6 +139,8 @@ $hosts       = ZabbixAPI::fetch_array('host','get',array('output'=>array('hostid
 	or die('Unable to get hosts: '.print_r(ZabbixAPI::getLastError(),true));
 $host_groups = ZabbixAPI::fetch_array('hostgroup','get', array('output'=>array('groupid','name'),'real_hosts'=>'1','with_graphs'=>'1','sortfield'=>'name') )
 	or die('Unable to get hosts: '.print_r(ZabbixAPI::getLastError(),true));
+$screens = ZabbixAPI::fetch_array('screen','get', array('output'=>array('screenid', 'name'),'with_graphs'=>'1','sortfield'=>'name') )
+	or die('Unable to get hosts: '.print_r(ZabbixAPI::getLastError(),true));
 ZabbixAPI::logout($z_server,$z_user,$z_pass)
 	or die('Unable to logout: '.print_r(ZabbixAPI::getLastError(),true));
 
@@ -137,6 +158,7 @@ ZabbixAPI::logout($z_server,$z_user,$z_pass)
 <p>
 <input id="ReportHost" type="radio" name="ReportType" value="host" title="Generate report on HOST" checked="checked" />Host
 <input id="ReportHostGroup" type="radio" name="ReportType" value="hostgroup" title="Generate report on GROUP" />Host Group
+<input id="ReportScreen" type="radio" name="ReportType" value="screen" title="Generate report on Screen" />Screen
 </p>
 </td><td valign="middle" width="110">
 &nbsp;
@@ -158,6 +180,14 @@ ReadArray($hosts);
 <option value="">--&nbsp;Select&nbsp;hostgroup&nbsp;--</option>
 <?php
 ReadArray($host_groups);
+?>
+</select>
+</p>
+<p id="p_ReportScreen">
+<select id="s_ReportScreen" name="ScreenID" width="350" style="width: 350px" title="Please select screen" >
+<option value="">--&nbsp;Select&nbsp;screen&nbsp;--</option>
+<?php
+ReadArray($screens);
 ?>
 </select>
 </p>

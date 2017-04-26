@@ -75,4 +75,39 @@ function CreatePDF($hostarray) {
 		}
 	}
 }
-?>
+
+function CreateScreenPDF($screenid) {
+    global $stime, $timeperiod, $tmp_pdf_data, $z_tmpimg_path, $debug;
+
+    $items = ZabbixAPI::fetch_array('screenitem', 'get', array('output'=>array('resourcetype', 'resourceid', 'hostids'), 'screenids'=>$screenid));
+    $fh = fopen($tmp_pdf_data, 'a') or die("Can't open $tmp_pdf_data for writing!");
+
+    $host = "";
+    foreach ($items as $hey=>$item) {
+        switch ($item["resourcetype"]) {
+            case 0:
+                $graph = ZabbixAPI::fetch_array('graph','get', array('selectHosts'=>array('name'),'graphids'=>$item["resourceid"]));
+                $graphid = $item["resourceid"];
+                $graphname = $graph[0]['name'];
+
+                $cur_host = str_replace(" ", "_", $graph[0]["hosts"][0]["name"]);
+                if ($host != $cur_host) {
+                    $stringData = "1<Graphs for ".$cur_host.">\n";
+                    if ($debug) { echo "<h1>$cur_host</h1></br>\n"; }
+                    fwrite($fh, $stringData);
+                    $host = $cur_host;
+                }
+
+                $image_file = $z_tmpimg_path ."/".$host."_" .$graphid .".png";
+                if ($debug) { echo "$graphname(id:$graphid)</br>\n"; }
+                $stringData = "2<$graphname>\n";
+                fwrite($fh, $stringData);
+                $stringData = "[" .$image_file ."]\n";
+                fwrite($fh, $stringData);
+                GetGraphImageById($graphid,$stime,$timeperiod,'750','150',$image_file);
+                break;
+        }
+        if ($debug) { ob_flush(); flush(); }
+    }
+    fclose($fh);
+}
